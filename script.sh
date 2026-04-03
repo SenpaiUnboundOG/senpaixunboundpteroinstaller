@@ -28,48 +28,43 @@ read -p "Enter choice [1-2]: " choice
 
 if [ "$choice" == "1" ]; then
     clear
-    read -p "Enter your Email: " input_email
-    read -p "Enter your Domain/FQDN: " input_fqdn
+    read -p "Enter your Email: " user_email
+    read -p "Enter your Domain (FQDN): " user_domain
     
     echo ""
-    echo "⚙️ Installing Pterodactyl... (Bypassing Menus)"
+    echo "🚀 Starting High-Speed Installation..."
+    echo "Bypass Mode Active: Menu and Database prompts skipped."
 
-    # Variables Export taaki installer inhe use kare
-    export FQDN="$input_fqdn"
-    export email="$input_email"
-    export user_email="$input_email"
-    export MYSQL_DB="panel"
-    export MYSQL_USER="pterodactyl"
-    export MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12)
-    export timezone="Asia/Kolkata"
-    export CONFIGURE_FIREWALL=false
-    export CONFIGURE_LETSENCRYPT=false
-
-    # 1. Installer download karo
-    curl -sL https://pterodactyl-installer.se -o /tmp/pteroinstaller.sh
-
-    # 2. MAGIC: Script ke menu loop aur welcome screen ko delete karna taaki wo seedha install shuru kare
-    # Hum seedha 'perform_install' function trigger kar rahe hain
-    sed -i 's/welcome ""//g' /tmp/pteroinstaller.sh
-    echo "perform_install" >> /tmp/pteroinstaller.sh
-
-    # 3. Installer ko run karna (Ab ye menu nahi dikhayega)
-    bash /tmp/pteroinstaller.sh
+    # Step 1: Installer ko download karke uske main functions load karna
+    # Hum unattended flag use karke installation trigger karenge
+    # Lekin hum ise 'bash' ke through arguments pass karenge jo NobitaHost karta hai
+    
+    bash <(curl -s https://pterodactyl-installer.se) --panel \
+        --unattended \
+        --email "$user_email" \
+        --fqdn "$user_domain" \
+        --timezone "Asia/Kolkata" \
+        --panel-db-name "pterodactyl" \
+        --panel-db-user "pterodactyl" \
+        --panel-db-pass "$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12)" <<EOF
+0
+EOF
 
     echo ""
     echo "======================================"
     echo "      CREATE YOUR ADMIN USER NOW"
     echo "======================================"
     
-    # Check agar folder bana hai, tabhi aage badho
+    # NobitaHost style: Force direct user creation trigger
     if [ -d "/var/www/pterodactyl" ]; then
-        cd /var/www/pterodactyl && php artisan p:user:make
+        cd /var/www/pterodactyl
+        # Yahan dark green screen aayegi
+        php artisan p:user:make
     else
-        echo "❌ ERROR: Installation failed or directory not found!"
+        echo "❌ Error: Panel directory not found! Something went wrong."
         exit 1
     fi
 
-    rm /tmp/pteroinstaller.sh
     echo ""
-    echo "✅ All Done! URL: http://$input_fqdn"
+    echo "✅ Installation Success! Access: http://$user_domain"
 fi
