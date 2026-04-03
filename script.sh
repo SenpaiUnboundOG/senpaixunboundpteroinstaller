@@ -23,9 +23,11 @@ echo ""
 echo "Select an option:"
 echo "1) PANEL"
 echo "2) WINGS (COMING SOON..)"
+echo "3) CLOUDFLARE (COMING SOON..)"
+echo "4) TOOLS (COMING SOON..)"
 echo ""
 
-read -p "Enter choice [1-2]: " choice
+read -p "Enter choice [1-4]: " choice
 
 if [ "$choice" == "1" ]; then
     clear
@@ -38,32 +40,14 @@ if [ "$choice" == "1" ]; then
 
     if [ "$panel_choice" == "1" ]; then
         echo ""
-        echo "Installing Pterodactyl... Please wait."
+        echo "Starting Pterodactyl Panel Installation..."
         
-        # --- THE FIX ---
-        # Hum installer ko unattended mode mein chala rahe hain.
-        # Ye '0' pehla menu select karega, aur baaki prompts auto-fill honge.
-        
-        export DEBIAN_FRONTEND=noninteractive
-        
-        # Pehla '0' menu ke liye, baaki empty lines default values (database etc.) ke liye
-        printf "0\n\n\n\n\n\n\n\n\n" | bash <(curl -s https://pterodactyl-installer.se)
+        # Yahan hum '0' bhej rahe hain taaki installer ka menu bypass ho jaye
+        # Aur seedha panel install hone lage (FQDN aur Database details ke baad)
+        printf "0\n" | bash <(curl -s https://pterodactyl-installer.se)
         
         echo ""
-        echo "======================================"
-        echo "      CREATE YOUR ADMIN USER NOW        "
-        echo "======================================"
-        
-        # Directory check aur user creation trigger
-        sleep 2
-        if [ -d "/var/www/pterodactyl" ]; then
-            cd /var/www/pterodactyl
-            # Yeh wahi dark green screen trigger karega
-            php artisan p:user:make
-        else
-            echo "❌ Error: Directory /var/www/pterodactyl not found!"
-            exit 1
-        fi
+        echo "✅ Installation Process Completed!"
         
     elif [ "$panel_choice" == "2" ]; then
         echo ""
@@ -78,5 +62,17 @@ if [ "$choice" == "1" ]; then
         php artisan up
         echo ""
         echo "✅ Panel Updated Successfully!"
+    else
+        echo "Invalid option!"
     fi
+
+# Baki options...
+elif [ "$choice" == "2" ]; then
+    echo "WINGS - COMING SOON.."
+elif [ "$choice" == "3" ]; then
+    echo "CLOUDFLARE - COMING SOON.."
+elif [ "$choice" == "4" ]; then
+    echo "TOOLS - COMING SOON.."
+else
+    echo "Invalid option!"
 fi
