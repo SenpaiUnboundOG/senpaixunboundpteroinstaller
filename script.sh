@@ -40,19 +40,32 @@ if [ "$choice" == "1" ]; then
 
     if [ "$panel_choice" == "1" ]; then
         echo ""
-        echo "Installing Pterodactyl Panel... Please wait."
+        echo "Installing Pterodactyl Panel... (Total Bypass Mode)"
         
-        # Is command mein hum saare answers pehle hi bhej rahe hain (Pipe technique)
-        # 0 = Install Panel
-        # Enter (\n) = Database name default
-        # Enter (\n) = Database user default
-        # Enter (\n) = Password auto-generate
-        # Isse wo Database wale sawal khud hi 'Enter' maankar skip kar dega
+        # Step 1: Install Dependencies & MariaDB automatically
+        apt update
+        apt install -y software-properties-common curl apt-transport-https ca-certificates gnupg
         
-        printf "0\n\n\n\n\n\n" | bash <(curl -s https://pterodactyl-installer.se)
-        
+        # Step 2: Run the installer with "FORCE" flags to skip database prompts
+        # Hum installer ko --panel-db-name, --panel-db-user bhej rahe hain taaki wo sawal na puche
+        export DEBIAN_FRONTEND=noninteractive
+        bash <(curl -s https://pterodactyl-installer.se) --panel \
+            --panel-db-name pterodactyl \
+            --panel-db-user pterodactyl \
+            --panel-db-pass $(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16) \
+            --timezone UTC \
+            --unattended
+
         echo ""
-        echo "✅ Panel installation complete! Now follow the user setup above."
+        echo "======================================"
+        echo "      CREATE YOUR ADMIN USER NOW"
+        echo "======================================"
+        # Step 3: Trigger the DARK GREEN user creation command directly
+        cd /var/www/pterodactyl
+        php artisan p:user:make
+
+        echo ""
+        echo "✅ Installation & User Creation Successfully Completed!"
         
     elif [ "$panel_choice" == "2" ]; then
         echo ""
