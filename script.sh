@@ -29,9 +29,6 @@ echo ""
 
 read -p "Enter choice [1-4]: " choice
 
-# =============================
-# PANEL MENU
-# =============================
 if [ "$choice" == "1" ]; then
     clear
     echo "==== PANEL MENU ===="
@@ -41,36 +38,21 @@ if [ "$choice" == "1" ]; then
 
     read -p "Enter choice [1-2]: " panel_choice
 
-    # -------------------------
-    # FRESH INSTALL (Modified)
-    # -------------------------
     if [ "$panel_choice" == "1" ]; then
-        
         echo ""
         echo "Starting Pterodactyl Panel Installation..."
-        echo "The installer will now ask for your FQDN and setup details."
+        
+        # Yahan hum '0' bhej rahe hain taaki installer ka menu bypass ho jaye
+        # Aur seedha panel install hone lage (FQDN aur Database details ke baad)
+        printf "0\n" | bash <(curl -s https://pterodactyl-installer.se)
+        
         echo ""
-
-        # Yahan script directly installer run karegi
-        # Isme user creation wahi dark green interface mein auto-trigger hoga
-        bash <(curl -s https://pterodactyl-installer.se) --install-panel
-
-        echo ""
-        echo "======================================"
-        echo "      INSTALLATION COMPLETED"
-        echo "======================================"
-        echo "✅ Agar koi error nahi aaya, toh panel install ho chuka hai."
-
-    # -------------------------
-    # UPDATE PANEL
-    # -------------------------
+        echo "✅ Installation Process Completed!"
+        
     elif [ "$panel_choice" == "2" ]; then
         echo ""
         echo "Updating Pterodactyl Panel..."
-        echo ""
-
         cd /var/www/pterodactyl || { echo "Panel not found!"; exit 1; }
-
         php artisan down
         git pull
         composer install --no-dev --optimize-autoloader
@@ -78,26 +60,19 @@ if [ "$choice" == "1" ]; then
         php artisan view:clear
         php artisan config:clear
         php artisan up
-
         echo ""
         echo "✅ Panel Updated Successfully!"
-
     else
         echo "Invalid option!"
     fi
 
-# =============================
-# OTHER OPTIONS
-# =============================
+# Baki options...
 elif [ "$choice" == "2" ]; then
     echo "WINGS - COMING SOON.."
-
 elif [ "$choice" == "3" ]; then
     echo "CLOUDFLARE - COMING SOON.."
-
 elif [ "$choice" == "4" ]; then
     echo "TOOLS - COMING SOON.."
-
 else
     echo "Invalid option!"
 fi
