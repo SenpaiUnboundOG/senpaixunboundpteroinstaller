@@ -23,7 +23,7 @@ echo ""
 echo "Select an option:"
 echo "1) PANEL"
 echo "2) WINGS (COMING SOON..)"
-echo "3) CLOUDFLARE (COMING SOON..)"
+echo "3) CLOUDFLARE (TUNNEL INSTALL)"
 echo "4) TOOLS (COMING SOON..)"
 echo ""
 
@@ -41,36 +41,23 @@ if [ "$choice" == "1" ]; then
 
     read -p "Enter choice [1-2]: " panel_choice
 
-    # -------------------------
-    # FRESH INSTALL (Modified)
-    # -------------------------
     if [ "$panel_choice" == "1" ]; then
-        
         echo ""
         echo "Starting Pterodactyl Panel Installation..."
         echo "The installer will now ask for your FQDN and setup details."
         echo ""
-
-        # Yahan script directly installer run karegi
-        # Isme user creation wahi dark green interface mein auto-trigger hoga
         bash <(curl -s https://pterodactyl-installer.se) --install-panel
-
         echo ""
         echo "======================================"
         echo "      INSTALLATION COMPLETED"
         echo "======================================"
         echo "✅ Agar koi error nahi aaya, toh panel install ho chuka hai."
 
-    # -------------------------
-    # UPDATE PANEL
-    # -------------------------
     elif [ "$panel_choice" == "2" ]; then
         echo ""
         echo "Updating Pterodactyl Panel..."
         echo ""
-
         cd /var/www/pterodactyl || { echo "Panel not found!"; exit 1; }
-
         php artisan down
         git pull
         composer install --no-dev --optimize-autoloader
@@ -78,12 +65,48 @@ if [ "$choice" == "1" ]; then
         php artisan view:clear
         php artisan config:clear
         php artisan up
-
         echo ""
         echo "✅ Panel Updated Successfully!"
-
     else
         echo "Invalid option!"
+    fi
+
+# =============================
+# CLOUDFLARE INSTALLATION (Option 3)
+# =============================
+elif [ "$choice" == "3" ]; then
+    clear
+    echo "==== CLOUDFLARE TUNNEL INSTALLER ===="
+    echo "Installing cloudflared repository and package..."
+    echo ""
+
+    # Add cloudflare gpg key
+    sudo mkdir -p --mode=0755 /usr/share/keyrings
+    curl -fsSL https://pkg.cloudflare.com/cloudflare-public-v2.gpg | sudo tee /usr/share/keyrings/cloudflare-public-v2.gpg >/dev/null
+
+    # Add repo
+    echo 'deb [signed-by=/usr/share/keyrings/cloudflare-public-v2.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
+
+    # Update and install
+    sudo apt-get update && sudo apt-get install -y cloudflared
+
+    echo ""
+    echo "✅ Cloudflared installed successfully."
+    echo ""
+    
+    # Ask for the Token
+    read -p "Please enter your Cloudflare Tunnel Token: " cf_token
+
+    if [ -z "$cf_token" ]; then
+        echo "❌ Token cannot be empty. Installation aborted."
+    else
+        echo "Installing cloudflared service..."
+        sudo cloudflared service install "$cf_token"
+        echo ""
+        echo "======================================"
+        echo "    CLOUDFLARE SERVICE INSTALLED"
+        echo "======================================"
+        echo "✅ Cloudflare Tunnel is now active!"
     fi
 
 # =============================
@@ -91,9 +114,6 @@ if [ "$choice" == "1" ]; then
 # =============================
 elif [ "$choice" == "2" ]; then
     echo "WINGS - COMING SOON.."
-
-elif [ "$choice" == "3" ]; then
-    echo "CLOUDFLARE - COMING SOON.."
 
 elif [ "$choice" == "4" ]; then
     echo "TOOLS - COMING SOON.."
