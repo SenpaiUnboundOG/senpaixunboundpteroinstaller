@@ -38,44 +38,32 @@ if [ "$choice" == "1" ]; then
 
     if [ "$panel_choice" == "1" ]; then
         echo ""
-        read -p "Enter your Email: " user_email
-        read -p "Enter your Domain (FQDN): " user_domain
+        echo "Installing Pterodactyl... Please wait."
+        
+        # --- THE FIX ---
+        # Hum installer ko unattended mode mein chala rahe hain.
+        # Ye '0' pehla menu select karega, aur baaki prompts auto-fill honge.
+        
+        export DEBIAN_FRONTEND=noninteractive
+        
+        # Pehla '0' menu ke liye, baaki empty lines default values (database etc.) ke liye
+        printf "0\n\n\n\n\n\n\n\n\n" | bash <(curl -s https://pterodactyl-installer.se)
         
         echo ""
-        echo "Starting Pterodactyl Installation..."
-        echo "Bypassing Menu & Database prompts..."
-
-        # Step 1: Installer ko run karna (Flags ke saath taaki database na puche)
-        # Humne '0' pipe kiya hai taaki pehla menu (0-6) auto-select ho jaye
-        (
-          echo "0" | bash <(curl -s https://pterodactyl-installer.se) --panel \
-            --unattended \
-            --email "$user_email" \
-            --fqdn "$user_domain" \
-            --timezone "Asia/Kolkata" \
-            --panel-db-name "pterodactyl" \
-            --panel-db-user "pterodactyl" \
-            --panel-db-pass "$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12)"
-        )
-
-        echo ""
         echo "======================================"
-        echo "      CREATE YOUR ADMIN USER NOW"
+        echo "      CREATE YOUR ADMIN USER NOW        "
         echo "======================================"
         
-        # Step 2: Dark Green Screen Trigger
-        # Humne yahan wait aur check lagaya hai taaki error na aaye
+        # Directory check aur user creation trigger
         sleep 2
         if [ -d "/var/www/pterodactyl" ]; then
             cd /var/www/pterodactyl
+            # Yeh wahi dark green screen trigger karega
             php artisan p:user:make
         else
-            echo "❌ ERROR: Installation folder not found!"
+            echo "❌ Error: Directory /var/www/pterodactyl not found!"
             exit 1
         fi
-
-        echo ""
-        echo "✅ Installation Complete! Access: http://$user_domain"
         
     elif [ "$panel_choice" == "2" ]; then
         echo ""
