@@ -43,14 +43,16 @@ if [ "$choice" == "1" ]; then
         read -p "Enter your Email: " user_email
         read -p "Enter your Domain (FQDN): " user_domain
         echo ""
-        echo "Installing Pterodactyl... Skipping menus and database prompts."
+        echo "Installing Pterodactyl... Sab kuch auto-skip ho raha hai."
 
-        # Step 1: Installer download karo local file mein
+        # Step 1: Installer download karo
         curl -sL https://pterodactyl-installer.se -o /tmp/pteroinstaller.sh
-        chmod +x /tmp/pteroinstaller.sh
-
-        # Step 2: Local file ko flags ke saath run karo
-        # Isse 0-6 wala menu aur database prompts dono bypass ho jayenge
+        
+        # Step 2: HACK - Installer ke loop ko bypass karne ke liye
+        # Hum installer ko batayenge ki 'action' pehle se 0 hai
+        # Isse wo 0-6 wala menu skip kar dega
+        export DEBIAN_FRONTEND=noninteractive
+        
         bash /tmp/pteroinstaller.sh --panel \
             --unattended \
             --email "$user_email" \
@@ -58,7 +60,9 @@ if [ "$choice" == "1" ]; then
             --timezone "Asia/Kolkata" \
             --panel-db-name "pterodactyl" \
             --panel-db-user "pterodactyl" \
-            --panel-db-pass "Pterodactyl@123"
+            --panel-db-pass "Pterodactyl@123" <<EOF
+0
+EOF
 
         echo ""
         echo "======================================"
