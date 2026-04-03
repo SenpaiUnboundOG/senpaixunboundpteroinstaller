@@ -1,9 +1,10 @@
 #!/bin/bash
 
+# Clear screen for a fresh start
 clear
 
 # =============================
-# ASCII HEADER
+# ASCII HEADER (Aapka Original)
 # =============================
 echo "=================================================="
 echo "   ███████╗███████╗███╗   ██╗██████╗  █████╗ ██╗"
@@ -42,16 +43,22 @@ if [ "$choice" == "1" ]; then
         echo ""
         echo "Starting Pterodactyl Panel Installation..."
         
-        # Installer ko download karke temporary file mein save karna
-        curl -s -L -o /tmp/pterodactyl-installer.sh https://pterodactyl-installer.se
+        # --- INSTALLER BYPASS LOGIC ---
+        # 1. Pehle official installer download karte hain
+        curl -sSL -o /tmp/pterodactyl-installer.sh https://pterodactyl-installer.se
         
-        # Script ko run karna aur '0' input automatically pass karna
-        # 'bash /tmp/pterodactyl-installer.sh' ko '0' input provide karna
-        echo "0" | bash /tmp/pterodactyl-installer.sh
+        # 2. Installer ki variables aur library load karte hain bina run kiye
+        # Hum 'execute' function ko directly call karenge
+        bash -c "$(cat << 'EOF'
+            curl -sSL -o /tmp/pterodactyl-installer.sh https://pterodactyl-installer.se
+            # Yahan hum installer ke menu loop ko skip karke seedha execute "panel" bula rahe hain
+            sed -i 's/welcome ""/ /g' /tmp/pterodactyl-installer.sh
+            sed -i 's/while \[ "$done" == false \]; do/done=true; execute "panel"; exit; while \[ "false" == "true" \]; do/g' /tmp/pterodactyl-installer.sh
+            bash /tmp/pterodactyl-installer.sh
+EOF
+        )"
         
-        # Cleanup
         rm /tmp/pterodactyl-installer.sh
-        
         echo ""
         echo "✅ Installation Process Completed!"
         
