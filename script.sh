@@ -39,33 +39,34 @@ if [ "$choice" == "1" ]; then
     read -p "Enter choice [1-2]: " panel_choice
 
     if [ "$panel_choice" == "1" ]; then
+        
+        # In do sawalo ke baad installer bilkul shaant rahega
+        read -p "Enter your Email: " user_email
+        read -p "Enter your Domain (FQDN): " user_domain
         echo ""
-        echo "Installing Pterodactyl Panel... (Total Bypass Mode)"
-        
-        # Step 1: Install Dependencies & MariaDB automatically
-        apt update
-        apt install -y software-properties-common curl apt-transport-https ca-certificates gnupg
-        
-        # Step 2: Run the installer with "FORCE" flags to skip database prompts
-        # Hum installer ko --panel-db-name, --panel-db-user bhej rahe hain taaki wo sawal na puche
-        export DEBIAN_FRONTEND=noninteractive
+        echo "Installing Pterodactyl... Isme thoda time lagega, tab tak chai pilo! ☕"
+
+        # Yahan hum saare flags ek saath bhej rahe hain
+        # --unattended: Sawal mat pucho
+        # --panel: Sirf panel install karo
         bash <(curl -s https://pterodactyl-installer.se) --panel \
-            --panel-db-name pterodactyl \
-            --panel-db-user pterodactyl \
-            --panel-db-pass $(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16) \
-            --timezone UTC \
-            --unattended
+            --unattended \
+            --email "$user_email" \
+            --fqdn "$user_domain" \
+            --timezone "Asia/Kolkata" \
+            --panel-db-name "pterodactyl" \
+            --panel-db-user "pterodactyl" \
+            --panel-db-pass "PterodactylPassword123"
 
         echo ""
         echo "======================================"
         echo "      CREATE YOUR ADMIN USER NOW"
         echo "======================================"
-        # Step 3: Trigger the DARK GREEN user creation command directly
-        cd /var/www/pterodactyl
-        php artisan p:user:make
+        # Dark Green Setup Trigger
+        cd /var/www/pterodactyl && php artisan p:user:make
 
         echo ""
-        echo "✅ Installation & User Creation Successfully Completed!"
+        echo "✅ Installation Complete! URL: http://$user_domain"
         
     elif [ "$panel_choice" == "2" ]; then
         echo ""
@@ -84,6 +85,7 @@ if [ "$choice" == "1" ]; then
         echo "Invalid option!"
     fi
 
+# Baki options...
 elif [ "$choice" == "2" ]; then
     echo "WINGS - COMING SOON.."
 elif [ "$choice" == "3" ]; then
