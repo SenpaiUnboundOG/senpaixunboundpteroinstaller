@@ -13,7 +13,7 @@ echo "   ╚════██║██╔══╝  ██║╚██╗██
 echo "   ███████║███████╗██║ ╚████║██║     ██║  ██║██║"
 echo "   ╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝     ╚═╝  ╚═╝╚═╝"
 echo ""
-echo "            POWERED BY SENPAIXUNBOUND"
+echo "             POWERED BY SENPAIXUNBOUND"
 echo "=================================================="
 echo ""
 
@@ -42,58 +42,24 @@ if [ "$choice" == "1" ]; then
     read -p "Enter choice [1-2]: " panel_choice
 
     # -------------------------
-    # FRESH INSTALL
+    # FRESH INSTALL (Modified)
     # -------------------------
     if [ "$panel_choice" == "1" ]; then
         
-        read -p "Enter your domain (example: panel.yourdomain.com): " domain
-
         echo ""
-        echo "Installing Pterodactyl Panel on $domain ..."
+        echo "Starting Pterodactyl Panel Installation..."
+        echo "The installer will now ask for your FQDN and setup details."
         echo ""
 
-        # Install Panel
-        bash <(curl -s https://pterodactyl-installer.se)
+        # Yahan script directly installer run karegi
+        # Isme user creation wahi dark green interface mein auto-trigger hoga
+        bash <(curl -s https://pterodactyl-installer.se) --install-panel
 
         echo ""
         echo "======================================"
-        echo "     CREATE PANEL USER"
+        echo "      INSTALLATION COMPLETED"
         echo "======================================"
-
-        # =============================
-        # USER INPUT
-        # =============================
-        read -p "Is user admin? (yes/no): " is_admin
-        read -p "Email: " email
-        read -p "Username: " username
-        read -p "First Name: " firstname
-        read -p "Last Name: " lastname
-        read -p "Password: " password
-
-        # Convert admin input
-        if [[ "$is_admin" == "yes" ]]; then
-            admin_flag="--admin=1"
-        else
-            admin_flag=""
-        fi
-
-        echo ""
-        echo "Creating user..."
-        echo ""
-
-        cd /var/www/pterodactyl || { echo "Panel not found!"; exit 1; }
-
-        php artisan p:user:make \
-            --email="$email" \
-            --username="$username" \
-            --name-first="$firstname" \
-            --name-last="$lastname" \
-            --password="$password" \
-            $admin_flag
-
-        echo ""
-        echo "✅ User Created Successfully!"
-        echo "Panel URL: http://$domain"
+        echo "✅ Agar koi error nahi aaya, toh panel install ho chuka hai."
 
     # -------------------------
     # UPDATE PANEL
