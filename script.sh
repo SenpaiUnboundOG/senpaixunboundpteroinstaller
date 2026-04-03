@@ -2,15 +2,10 @@
 
 clear
 
-# Colors for the Dark Green Aesthetic
-GREEN='\033[0;32m'
-DARK_GREEN='\033[1;32m'
-NC='\033[0m' 
-
 # =============================
 # ASCII HEADER
 # =============================
-echo -e "${DARK_GREEN}=================================================="
+echo "=================================================="
 echo "   ███████╗███████╗███╗   ██╗██████╗  █████╗ ██╗"
 echo "   ██╔════╝██╔════╝████╗  ██║██╔══██╗██╔══██╗██║"
 echo "   ███████╗█████╗  ██╔██╗ ██║██████╔╝███████║██║"
@@ -19,72 +14,89 @@ echo "   ███████║███████╗██║ ╚███�
 echo "   ╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝     ╚═╝  ╚═╝╚═╝"
 echo ""
 echo "             POWERED BY SENPAIXUNBOUND"
-echo -e "==================================================${NC}"
+echo "=================================================="
 echo ""
 
 # =============================
 # MAIN MENU
 # =============================
 echo "Select an option:"
-echo "1) INSTALL PANEL (Database + FQDN + User)"
-echo "2) UPDATE PANEL"
-echo "3) CREATE EXTRA ADMIN USER (Official)"
+echo "1) PANEL"
+echo "2) WINGS (COMING SOON..)"
+echo "3) CLOUDFLARE (COMING SOON..)"
+echo "4) TOOLS (COMING SOON..)"
 echo ""
 
-read -p "Enter choice [1-3]: " choice
+read -p "Enter choice [1-4]: " choice
 
+# =============================
+# PANEL MENU
+# =============================
 if [ "$choice" == "1" ]; then
     clear
-    echo -e "${DARK_GREEN}--- Starting Pterodactyl Installation Flow ---${NC}"
-    
-    # Step 1: Base Installation
-    # Pipe hata diya hai taaki aap interactive mode mein Database aur FQDN fill kar sakein
-    bash <(curl -s https://pterodactyl-installer.se)
-
+    echo "==== PANEL MENU ===="
+    echo "1) FRESH INSTALL"
+    echo "2) UPDATE PANEL"
     echo ""
-    echo -e "${DARK_GREEN}--- Database & Environment Setup ---${NC}"
-    if [ -d "/var/www/pterodactyl" ]; then
-        cd /var/www/pterodactyl
-        
-        # Database setup command (Official)
-        echo "Configuring Database environment..."
-        php artisan p:environment:database
-        
-        # FQDN & Application setup command
-        echo "Configuring Application (FQDN, SSL, etc.)..."
-        php artisan p:environment:setup
 
-        # Step 2: Official User Creation
+    read -p "Enter choice [1-2]: " panel_choice
+
+    # -------------------------
+    # FRESH INSTALL (Modified)
+    # -------------------------
+    if [ "$panel_choice" == "1" ]; then
+        
         echo ""
-        echo -e "${DARK_GREEN}--- Creating Official Admin User ---${NC}"
-        php artisan p:user:make
+        echo "Starting Pterodactyl Panel Installation..."
+        echo "The installer will now ask for your FQDN and setup details."
+        echo ""
+
+        # Yahan script directly installer run karegi
+        # Isme user creation wahi dark green interface mein auto-trigger hoga
+        bash <(curl -s https://pterodactyl-installer.se) --install-panel
+
+        echo ""
+        echo "======================================"
+        echo "      INSTALLATION COMPLETED"
+        echo "======================================"
+        echo "✅ Agar koi error nahi aaya, toh panel install ho chuka hai."
+
+    # -------------------------
+    # UPDATE PANEL
+    # -------------------------
+    elif [ "$panel_choice" == "2" ]; then
+        echo ""
+        echo "Updating Pterodactyl Panel..."
+        echo ""
+
+        cd /var/www/pterodactyl || { echo "Panel not found!"; exit 1; }
+
+        php artisan down
+        git pull
+        composer install --no-dev --optimize-autoloader
+        php artisan migrate --seed --force
+        php artisan view:clear
+        php artisan config:clear
+        php artisan up
+
+        echo ""
+        echo "✅ Panel Updated Successfully!"
+
     else
-        echo -e "\e[31mError: Installation directory /var/www/pterodactyl not found!\e[0m"
+        echo "Invalid option!"
     fi
 
-    echo ""
-    echo -e "${GREEN}✅ Full Installation Process Completed!${NC}"
-
+# =============================
+# OTHER OPTIONS
+# =============================
 elif [ "$choice" == "2" ]; then
-    echo -e "${DARK_GREEN}Updating Panel...${NC}"
-    cd /var/www/pterodactyl || { echo "Panel not found!"; exit 1; }
-    php artisan down
-    git pull
-    composer install --no-dev --optimize-autoloader
-    php artisan migrate --seed --force
-    php artisan view:clear
-    php artisan config:clear
-    php artisan up
-    echo -e "${GREEN}✅ Update Done!${NC}"
+    echo "WINGS - COMING SOON.."
 
 elif [ "$choice" == "3" ]; then
-    echo -e "${DARK_GREEN}Launching Official User Creation...${NC}"
-    if [ -d "/var/www/pterodactyl" ]; then
-        cd /var/www/pterodactyl
-        php artisan p:user:make
-    else
-        echo "Error: /var/www/pterodactyl directory nahi mili!"
-    fi
+    echo "CLOUDFLARE - COMING SOON.."
+
+elif [ "$choice" == "4" ]; then
+    echo "TOOLS - COMING SOON.."
 
 else
     echo "Invalid option!"
