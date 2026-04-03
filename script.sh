@@ -42,8 +42,15 @@ if [ "$choice" == "1" ]; then
         echo ""
         echo "Starting Pterodactyl Panel Installation..."
         
-        # Ye command installer ke menu ko skip karke seedha Panel setup shuru karegi
-        bash <(curl -s https://pterodactyl-installer.se) --panel
+        # Installer ko download karke temporary file mein save karna
+        curl -s -L -o /tmp/pterodactyl-installer.sh https://pterodactyl-installer.se
+        
+        # Script ko run karna aur '0' input automatically pass karna
+        # 'bash /tmp/pterodactyl-installer.sh' ko '0' input provide karna
+        echo "0" | bash /tmp/pterodactyl-installer.sh
+        
+        # Cleanup
+        rm /tmp/pterodactyl-installer.sh
         
         echo ""
         echo "✅ Installation Process Completed!"
