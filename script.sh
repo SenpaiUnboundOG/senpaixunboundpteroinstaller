@@ -42,9 +42,8 @@ if [ "$choice" == "1" ]; then
         echo ""
         echo "Starting Pterodactyl Panel Installation..."
         
-        # Yahan hum '0' bhej rahe hain taaki installer ka menu bypass ho jaye
-        # Aur seedha panel install hone lage (FQDN aur Database details ke baad)
-        printf "0\n" | bash <(curl -s https://pterodactyl-installer.se)
+        # Ye command installer ke menu ko skip karke seedha Panel setup shuru karegi
+        bash <(curl -s https://pterodactyl-installer.se) --panel
         
         echo ""
         echo "✅ Installation Process Completed!"
@@ -66,7 +65,6 @@ if [ "$choice" == "1" ]; then
         echo "Invalid option!"
     fi
 
-# Baki options...
 elif [ "$choice" == "2" ]; then
     echo "WINGS - COMING SOON.."
 elif [ "$choice" == "3" ]; then
