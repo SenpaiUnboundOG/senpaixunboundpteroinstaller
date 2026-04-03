@@ -40,33 +40,38 @@ if [ "$choice" == "1" ]; then
 
     if [ "$panel_choice" == "1" ]; then
         
-        # In do sawalo ke baad installer bilkul shaant rahega
         read -p "Enter your Email: " user_email
         read -p "Enter your Domain (FQDN): " user_domain
         echo ""
-        echo "Installing Pterodactyl... Isme thoda time lagega, tab tak chai pilo! ☕"
+        echo "Installing Pterodactyl... Skipping menus and database prompts."
 
-        # Yahan hum saare flags ek saath bhej rahe hain
-        # --unattended: Sawal mat pucho
-        # --panel: Sirf panel install karo
-        bash <(curl -s https://pterodactyl-installer.se) --panel \
+        # Step 1: Installer download karo local file mein
+        curl -sL https://pterodactyl-installer.se -o /tmp/pteroinstaller.sh
+        chmod +x /tmp/pteroinstaller.sh
+
+        # Step 2: Local file ko flags ke saath run karo
+        # Isse 0-6 wala menu aur database prompts dono bypass ho jayenge
+        bash /tmp/pteroinstaller.sh --panel \
             --unattended \
             --email "$user_email" \
             --fqdn "$user_domain" \
             --timezone "Asia/Kolkata" \
             --panel-db-name "pterodactyl" \
             --panel-db-user "pterodactyl" \
-            --panel-db-pass "PterodactylPassword123"
+            --panel-db-pass "Pterodactyl@123"
 
         echo ""
         echo "======================================"
         echo "      CREATE YOUR ADMIN USER NOW"
         echo "======================================"
-        # Dark Green Setup Trigger
+        # Step 3: Dark Green setup trigger
         cd /var/www/pterodactyl && php artisan p:user:make
 
+        # Cleanup
+        rm /tmp/pteroinstaller.sh
+
         echo ""
-        echo "✅ Installation Complete! URL: http://$user_domain"
+        echo "✅ Done! Panel URL: http://$user_domain"
         
     elif [ "$panel_choice" == "2" ]; then
         echo ""
@@ -85,7 +90,6 @@ if [ "$choice" == "1" ]; then
         echo "Invalid option!"
     fi
 
-# Baki options...
 elif [ "$choice" == "2" ]; then
     echo "WINGS - COMING SOON.."
 elif [ "$choice" == "3" ]; then
